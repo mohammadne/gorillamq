@@ -1,24 +1,47 @@
 package network
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net"
 )
 
-func NewTCP() Network {
-	return nil
-}
+// func ListenInsecureTCP(address string, handler func(Network)) error {
+// 	listener, err := net.Listen("tcp", address)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to start the server: %v", err)
+// 	}
 
-// Listen will listens and serv
-func ListenTCP(address string, handler func(Network)) error {
-	listener, err := net.Listen("tcp", address)
+// 	for {
+// 		if conn, er := listener.Accept(); er == nil {
+// 			go handler(&tcp{connection: conn})
+// 		}
+// 	}
+// }
+
+// Listen will listens and serve
+func ListenTCP(cfg *Config, address string, handler func(Network)) error {
+	// Load server certificate and private key
+	cert, err := tls.X509KeyPair([]byte(cfg.TLS.Certificate), []byte(cfg.TLS.PrivateKey))
 	if err != nil {
-		return fmt.Errorf("failed to start the server: %v", err)
+		return fmt.Errorf("Error loading certificate: %v", err)
 	}
 
+	// Create TLS configuration
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+
+	// Create TLS listener
+	listener, err := tls.Listen("tcp", address, tlsConfig)
+	if err != nil {
+		return fmt.Errorf("Error creating listener: %v", err)
+	}
+	defer listener.Close()
+
 	for {
-		if conn, er := listener.Accept(); er == nil {
+		if conn, err := listener.Accept(); err == nil {
 			go handler(&tcp{connection: conn})
 		}
 	}

@@ -36,7 +36,7 @@ func (server Server) Command() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "server",
-		Short: "Run LionMQ server",
+		Short: "Run GorillaMQ server",
 		Run:   run,
 	}
 
@@ -46,7 +46,7 @@ func (server Server) Command() *cobra.Command {
 }
 
 func (server *Server) start(ctx context.Context) {
-	manager.NewBroker(server.logger).Start(ctx)
+	manager.NewBroker(server.logger).Start(ctx, server.config.Network)
 }
 
 func (server *Server) stop(ctx context.Context) {}

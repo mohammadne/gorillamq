@@ -10,23 +10,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// type Broker interface {
-// 	// Publish publishes a message to its subscribers
-// 	Publish(topic core.Topic, message core.Message)
-
-// 	// Subscribe subscribes a worker to specific topic
-// 	Subscribe(topic core.Topic, workerID int)
-
-// 	// Unsubscribe unsubscribes a worker from specific topic
-// 	Unsubscribe(topic core.Topic, workerID int)
-
-// 	// RemoveWorker removes a worker from all subscribed topics
-// 	RemoveWorker(workerID int)
-
-// 	// Topics returns list of all available topics on the broker
-// 	Topics() []core.Topic
-// }
-
 type broker struct {
 	logger *zap.Logger
 	locker *sync.RWMutex
@@ -60,18 +43,22 @@ func NewBroker(logger *zap.Logger) *broker {
 	}
 }
 
-func (b *broker) Start(ctx context.Context) {
-	go network.ListenTCP(":8080", func(network network.Network) {
+func (b *broker) Start(ctx context.Context, cfg *network.Config) {
+	err := network.ListenTCP(cfg, ":8080", func(network network.Network) {
 		NewClient(
 			b.logger,
 			network,
-			ClientID(rand.IntN(1000)),
+			ClientID(rand.IntN(1000)), // TODO:change the logic
 			b.subscribe,
 			b.unsubscribe,
 			b.publish,
 			b.terminate,
 		).start()
 	})
+
+	if err != nil {
+		panic(err)
+	}
 
 	go func() {
 		for {
