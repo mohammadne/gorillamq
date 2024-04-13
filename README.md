@@ -1,7 +1,9 @@
 # GorillaMQ
 
 ![go-version](https://img.shields.io/badge/Golang-1.21-66ADD8?style=for-the-badge&logo=go)
-![app-version](https://img.shields.io/badge/Version-0.1.0-red?style=for-the-badge&logo=github)
+![build-status](https://img.shields.io/github/actions/workflow/status/gorillamq/gorillamq/test.yaml?logo=github&style=for-the-badge)
+![app-version](https://img.shields.io/github/v/tag/gorillamq/gorillamq?sort=semver&style=for-the-badge&logo=github)
+![coverage](https://img.shields.io/codecov/c/github/gorillamq/gorillamq?logo=codecov&style=for-the-badge)
 
 The cloud and edge native messaging broker server written in Go
 
