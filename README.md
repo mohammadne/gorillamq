@@ -20,3 +20,5 @@ A fast message broker implemented with Golang programming language. You can use 
 - implement basic auth for gorillamqs
 - think about deployment and horizontal scaling
 - Durability and persistans challanges
+- add loadtest scenarios
+- deployment and helm chart
