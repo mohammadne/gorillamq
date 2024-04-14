@@ -8,14 +8,20 @@ import (
 	"github.com/mohammadne/gorillamq/internal/config"
 	"github.com/mohammadne/gorillamq/internal/manager"
 	"github.com/mohammadne/gorillamq/pkg/logger"
+	"github.com/mohammadne/gorillamq/pkg/tcp"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
 
 type Server struct {
-	metricsPort int
-	config      *config.Config
-	logger      *zap.Logger
+	// ports struct {
+	// 	management  int
+	// 	insecureTCP int
+	// 	secureTCP   int
+	// }
+
+	config *config.Config
+	logger *zap.Logger
 }
 
 func (server Server) Command() *cobra.Command {
@@ -40,13 +46,14 @@ func (server Server) Command() *cobra.Command {
 		Run:   run,
 	}
 
-	cmd.Flags().IntVar(&server.metricsPort, "metrics-port", 8081, "The port the metric and probe endpoints binds to")
+	// cmd.Flags().IntVar(&server.ports.management, "management-port", 8000, "The port the metric and probe endpoints binds to")
 
 	return cmd
 }
 
 func (server *Server) start(ctx context.Context) {
-	manager.NewBroker(server.logger).Start(ctx, server.config.Network)
+	tcp := tcp.NewTCP(server.config.TCP)
+	manager.NewBroker(server.logger, tcp).Start(ctx)
 }
 
 func (server *Server) stop(ctx context.Context) {}

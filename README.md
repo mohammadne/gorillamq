@@ -9,11 +9,14 @@ The cloud and edge native messaging broker server written in Go
 
 A fast message broker implemented with Golang programming language. You can use GorillaMQ in order to make communication between clients with sending and receiving events.
 
+## Features
+
+- Implemented with best Go concurrency practices (event-bus, worker-pool and etc)
+- simultaneous secure (over TLS) and insecure TCP connection
+- Dedicated protocol (gorillamq and gorillamqs)
+
 ## TODOs
 
-- implement connection-pool for clients
-- improve concurrency (implement worker-pool in broker module)
-- secure and insecure connection at the same time (gorillamqs protocol)
 - implement basic auth for gorillamqs
 - think about deployment and horizontal scaling
 - Durability and persistans challanges

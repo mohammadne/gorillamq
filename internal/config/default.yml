@@ -3,9 +3,10 @@ logger:
   development: true
   level: "info"
   encoding: "console"
-network:
+tcp:
+  secure_port: 8443
+  insecure_port: 8080
   tls:
-    enabled: true
     certificate: |
       -----BEGIN CERTIFICATE-----
       MIIBDDCBvwIUE1KUKVQPoywtsK8ObDt8zu3fTT4wBQYDK2VwMCkxCzAJBgNVBAYT

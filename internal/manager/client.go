@@ -1,20 +1,22 @@
 package manager
 
 import (
+	"net"
+
 	"github.com/mohammadne/gorillamq/internal/core"
-	"github.com/mohammadne/gorillamq/internal/network"
+	"github.com/mohammadne/gorillamq/pkg/tcp"
 	"go.uber.org/zap"
 )
 
-type ClientID int
+type ClientID uint64
 
 // Client represent each connection to the server
 // which can subscribe on multiple topics and send
 // messages over multiple topics
 // Client handles a single client either for subscribing or publishing
 type Client struct {
-	logger  *zap.Logger
-	network network.Network
+	logger     *zap.Logger
+	connection net.Conn
 
 	// the ID for each client routine
 	ID ClientID
@@ -29,7 +31,7 @@ type Client struct {
 
 func NewClient(
 	logger *zap.Logger,
-	network network.Network,
+	connection net.Conn,
 	ID ClientID,
 	subscribe chan<- SubscribeEvent,
 	unsubscribe chan<- UnsubscribeEvent,
@@ -38,7 +40,7 @@ func NewClient(
 ) *Client {
 	return &Client{
 		logger:      logger,
-		network:     network,
+		connection:  connection,
 		ID:          ID,
 		subscribe:   subscribe,
 		unsubscribe: unsubscribe,
@@ -54,9 +56,9 @@ func (c *Client) start() {
 	// handle handles incoming messages receiving from the network
 	go func() {
 		for {
-			buffer, err := c.network.Recieve()
+			buffer, err := tcp.Recieve(c.connection)
 			if err != nil {
-				if err == network.ErrorConnectionClosed {
+				if err == tcp.ErrorConnectionClosed {
 					close(c.deliver)
 					break
 				}
@@ -91,7 +93,7 @@ func (c *Client) start() {
 					}
 				case core.PingMessage:
 					msg := core.Message{Type: core.PongMessage}
-					if err := c.network.Send(msg.Encode()); err != nil {
+					if err := tcp.Send(c.connection, msg.Encode()); err != nil {
 						c.logger.Error("Error sending pong message to the client", zap.Error(err))
 					}
 				default:
@@ -112,7 +114,7 @@ loop:
 			if !more {
 				break loop
 			}
-			if err := c.network.Send(event.message.Encode()); err != nil {
+			if err := tcp.Send(c.connection, event.message.Encode()); err != nil {
 				c.logger.Error("Error sending message to the client", zap.Error(err))
 			}
 		}
